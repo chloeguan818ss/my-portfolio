@@ -1,11 +1,82 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 这里是 Frontmatter，以后我们会在这里写逻辑
+const firstName = "Chloe"; // 换成你的名
+const lastName = "Guan";  // 换成你的姓
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>My Portfolio</title>
+	</head>
+	<body class="bg-white text-black font-sans overflow-x-hidden">
+		<section class="min-h-screen flex flex-col items-center justify-center relative">
+				<h1 class="text-6xl md:text-8xl font-bold tracking-tighter">{firstName}</h1>
+				
+				<div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
+    <div class="absolute inset-0">
+        <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+                <clipPath id="avatarClip">
+                    <circle cx="100" cy="100" r="50" />
+                </clipPath>
+            </defs>
+            <image href="/my-avatar.PNG" x="50" y="50" width="100" height="100" preserveAspectRatio="xMidYMid meet" clip-path="url(#avatarClip)" />
+        </svg>
+    </div>
+    <div class="absolute inset-0 animate-spin-slow hover:pause z-20">
+        <svg viewBox="0 0 200 200" class="w-full h-full">
+            <path id="circlePath" d="M 100, 100 m -80, 0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" fill="none" />
+            <text class="text-[12px] uppercase tracking-[0.2em] fill-black">
+                <textPath href="#circlePath" startOffset="0%">
+                    Projects • Insights • Life • Projects • Insights • Life •
+                </textPath>
+            </text>
+        </svg>
+    </div>
+</div>
+
+				<h1 class="text-6xl md:text-8xl font-bold tracking-tighter">{lastName}</h1>
+			</div>
+
+			<div class="mt-12 max-w-lg text-center px-4">
+				<p id="typewriter" class="text-xl text-gray-600 leading-relaxed"></p>
+			</div>
+		</section>
+
+		<style>
+			/* 定义光环旋转动画 */
+			@keyframes spin {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+			.animate-spin-slow {
+				animation: spin 20s linear infinite;
+			}
+			.hover\:pause:hover {
+				animation-play-state: paused;
+			}
+		</style>
+	<script>
+  // 你的自我介绍内容
+  const text = "一个关注人机交互、机器翻译与认知过程的开发者。正在构建数字脑（Metis），探索 AI 如何重塑我们的智慧版图。";
+  const speed = 50; // 打印速度 (毫秒)
+  let i = 0;
+
+  function typeWriter() {
+    if (i < text.length) {
+      const element = document.getElementById("typewriter");
+      if (element) {
+        element.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(typeWriter, speed);
+      }
+    }
+  }
+
+  // 页面加载完成后开始打印
+  window.onload = typeWriter;
+</script>
+	</body>
+</html>

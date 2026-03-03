@@ -1,23 +1,149 @@
+---
+/* 视觉：接收可选的页面标题，供 <title> 使用。
+ * 逻辑：Props 是 Astro 组件的属性类型定义；解构时若未传入 title 则默认为 'My Portfolio'。 */
+interface Props {
+	title?: string;
+}
+
+const { title = 'My Portfolio' } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="zh-cn">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
 	<body>
-		<slot />
+		<!-- 视觉：顶部固定导航栏，Logo 在左、链接在右。
+		     逻辑：site-nav 使用 sticky 吸附顶部，内部用 flex 左对齐排列。 -->
+		<header class="site-nav">
+			<nav class="nav-inner">
+				<a href="/" class="nav-logo">Chloe Guan</a>
+				<ul class="nav-links">
+					<li><a href="/">Home</a></li>
+					<li><a href="/">Projects</a></li>
+					<li><a href="/">About</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- 视觉：主内容区域，居中且最大宽度 1200px。
+		     逻辑：slot 是 Astro 的插槽，子页面的内容会在此处渲染。 -->
+		<main class="site-main">
+			<slot />
+		</main>
 	</body>
 </html>
 
-<style>
+<style is:global>
+	/* 视觉：消除默认边距，全屏白底，统一无衬线字体。
+	 * 逻辑：box-sizing: border-box 使 width/height 包含 padding 和 border，便于布局计算。 */
+	* {
+		box-sizing: border-box;
+	}
+
 	html,
 	body {
 		margin: 0;
+		padding: 0;
+		min-height: 100%;
 		width: 100%;
-		height: 100%;
+		background-color: #ffffff;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	}
+
+	/* 视觉：顶部导航栏始终可见，白底加底部细线。
+	 * 逻辑：sticky 使元素在滚动时吸附在 top:0 位置；z-index 保证浮于内容之上。 */
+	.site-nav {
+		position: sticky;
+		top: 0;
+		left: 0;
+		right: 0;
+		background-color: #ffffff;
+		border-bottom: 1px solid #e5e7eb;
+		z-index: 100;
+	}
+
+	/* 视觉：导航内容横向排列、左对齐，最大宽度居中。
+	 * 逻辑：flex 布局；justify-content: flex-start 使元素靠左；gap 控制间距。 */
+	.nav-inner {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 2rem;
+		padding: 1rem 1.5rem;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	/* 视觉：Logo 粗体、深色、无下划线，作为品牌入口。 */
+	.nav-logo {
+		font-weight: 700;
+		font-size: 1.25rem;
+		text-decoration: none;
+		color: #111827;
+	}
+
+	/* 视觉：导航链接列表，横向排列，灰色文字。 */
+	.nav-links {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* 视觉：链接默认灰色，悬停变深；transition 使颜色过渡平滑。 */
+	.nav-links a {
+		text-decoration: none;
+		color: #4b5563;
+		font-size: 0.9375rem;
+		transition: color 0.2s ease;
+	}
+
+	.nav-links a:hover {
+		color: #111827;
+	}
+
+	/* 视觉：主内容区最大宽度 1200px、居中，两侧留白。
+	 * 逻辑：margin: 0 auto 在块级元素上实现水平居中。 */
+	.site-main {
+		flex: 1;
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	/* 视觉：小屏幕下导航改为纵向排列，节省横向空间。
+	 * 逻辑：媒体查询（Media Query）在视口宽度 ≤640px 时应用，实现响应式布局。 */
+	@media screen and (max-width: 640px) {
+		.nav-inner {
+			flex-direction: column;
+			align-items: flex-start;
+			padding: 0.75rem 1rem;
+		}
+
+		.nav-links {
+			flex-wrap: wrap;
+			gap: 0.75rem;
+		}
+
+		.nav-links a {
+			font-size: 0.875rem;
+		}
+	}
+
+	/* 视觉：大屏幕下主内容区两侧增加内边距。
+	 * 逻辑：min-width 媒体查询，仅在视口 ≥641px 时生效。 */
+	@media screen and (min-width: 641px) {
+		.site-main {
+			padding: 0 1.5rem;
+		}
 	}
 </style>

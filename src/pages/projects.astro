@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Projects - My Portfolio">
+	<!-- 视觉：页面中央显示大标题 "Projects" 作为占位。
+	     逻辑：flex 居中使标题在可视区域内垂直水平居中。 -->
+	<section class="page-placeholder">
+		<h1>Projects</h1>
+	</section>
+
+	<style>
+		/* 视觉：占位区域占满可视高度，标题居中。
+		 * 逻辑：min-height 扣除导航和底部留白；flex 实现居中。 */
+		.page-placeholder {
+			min-height: calc(100vh - 120px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.page-placeholder h1 {
+			font-size: 2.5rem;
+			font-weight: 700;
+			color: #111827;
+		}
+	</style>
+</Layout>

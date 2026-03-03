@@ -1,82 +1,200 @@
 ---
-// 这里是 Frontmatter，以后我们会在这里写逻辑
-const firstName = "Chloe"; // 换成你的名
-const lastName = "Guan";  // 换成你的姓
+/* 引入全站母版，首页使用 Layout 包裹以复用导航和基础样式。 */
+import Layout from '../layouts/Layout.astro';
+
+/* 视觉：首页大标题拆为「名 + 姓」两行显示。
+ * 逻辑：变量在模板中通过 {firstName} {lastName} 插值渲染。 */
+const firstName = "Chloe";
+const lastName = "Guan";
 ---
 
-<html lang="zh-cn">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>My Portfolio</title>
-	</head>
-	<body class="bg-white text-black font-sans overflow-x-hidden">
-		<section class="min-h-screen flex flex-col items-center justify-center relative">
-				<h1 class="text-6xl md:text-8xl font-bold tracking-tighter">{firstName}</h1>
-				
-				<div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-    <div class="absolute inset-0">
-        <svg viewBox="0 0 200 200" class="w-full h-full">
-            <defs>
-                <clipPath id="avatarClip">
-                    <circle cx="100" cy="100" r="50" />
-                </clipPath>
-            </defs>
-            <image href="/my-avatar.png" x="50" y="50" width="100" height="100" preserveAspectRatio="xMidYMid meet" clip-path="url(#avatarClip)" />
-        </svg>
-    </div>
-    <div class="absolute inset-0 animate-spin-slow hover:pause z-20">
-        <svg viewBox="0 0 200 200" class="w-full h-full">
-            <path id="circlePath" d="M 100, 100 m -80, 0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" fill="none" />
-            <text class="text-[12px] uppercase tracking-[0.2em] fill-black">
-                <textPath href="#circlePath" startOffset="0%">
-                    Projects • Insights • Life • Projects • Insights • Life •
-                </textPath>
-            </text>
-        </svg>
-    </div>
-</div>
+<Layout title="My Portfolio">
+	<!-- 视觉：首页主区块，垂直居中，包含姓名、头像、自我介绍。
+	     逻辑：hero 为常见命名，表示页面首屏重点区域。 -->
+	<section class="hero">
+		<h1 class="hero-name">{firstName}</h1>
 
-				<h1 class="text-6xl md:text-8xl font-bold tracking-tighter">{lastName}</h1>
+		<!-- 视觉：头像容器，内有两层：圆形头像 + 旋转文字环。
+		     逻辑：两层 absolute 叠放，avatar-svg 在下、avatar-spin 在上。 -->
+		<div class="avatar-container">
+			<!-- 视觉：圆形裁剪的头像图片，居中显示。
+			     逻辑：clipPath 定义裁剪区域；viewBox 建立 SVG 坐标系统 (0,0)-(200,200)。 -->
+			<div class="avatar-svg">
+				<svg viewBox="0 0 200 200">
+					<defs>
+						<clipPath id="avatarClip">
+							<!-- 圆心 (100,100)、半径 50，在 200x200 画布中居中。 -->
+							<circle cx="100" cy="100" r="50" />
+						</clipPath>
+					</defs>
+					<!-- preserveAspectRatio="xMidYMid meet"：保持比例并居中；clip-path 引用上方裁剪路径。 -->
+					<image href="/my-avatar.png" x="50" y="50" width="100" height="100" preserveAspectRatio="xMidYMid meet" clip-path="url(#avatarClip)" />
+				</svg>
 			</div>
-
-			<div class="mt-12 max-w-lg text-center px-4">
-				<p id="typewriter" class="text-xl text-gray-600 leading-relaxed"></p>
+			<!-- 视觉：环绕头像旋转的文字环，悬停时暂停，文字可点击跳转。
+			     逻辑：path 定义圆弧；textPath 让文字沿该路径排列；animation 控制旋转。 -->
+			<div class="avatar-spin">
+				<svg viewBox="0 0 200 200" class="circle-svg">
+					<!-- d 属性：从圆心 (100,100) 出发，绘制半径 80 的圆弧路径。 -->
+					<path id="circlePath" d="M 100, 100 m -80, 0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" fill="none" />
+					<text class="circle-text">
+						<!-- textPath：将文字绑定到 #circlePath，沿圆弧排布；每个词是独立链接。 -->
+						<textPath href="#circlePath" startOffset="0%">
+							<a href="/projects">Projects</a> • <a href="/insights">Insights</a> • <a href="/journey">Journey</a> • <a href="/projects">Projects</a> • <a href="/insights">Insights</a> • <a href="/journey">Journey</a> •
+						</textPath>
+					</text>
+				</svg>
 			</div>
-		</section>
+		</div>
 
-		<style>
-			/* 定义光环旋转动画 */
-			@keyframes spin {
-				from { transform: rotate(0deg); }
-				to { transform: rotate(360deg); }
+		<h1 class="hero-name">{lastName}</h1>
+
+		<!-- 视觉：打字机效果展示自我介绍，逐字出现。
+		     逻辑：id="typewriter" 供 JS 选择；内容由下方脚本动态写入。 -->
+		<div class="intro">
+			<p id="typewriter" class="intro-text"></p>
+		</div>
+	</section>
+
+	<style>
+		/* 视觉：主区块占满首屏高度，内容垂直水平居中。
+		 * 逻辑：calc(100vh - 60px) 扣除导航高度；flex + align/justify-center 实现居中。 */
+		.hero {
+			min-height: calc(100vh - 60px);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+			padding: 2rem 1rem;
+		}
+
+		/* 视觉：大号粗体姓名，移动端 3rem、桌面端 5rem。 */
+		.hero-name {
+			font-size: 3rem;
+			font-weight: 700;
+			letter-spacing: -0.05em;
+			margin: 0;
+		}
+
+		@media (min-width: 768px) {
+			.hero-name {
+				font-size: 5rem;
 			}
-			.animate-spin-slow {
-				animation: spin 20s linear infinite;
+		}
+
+		/* 视觉：固定尺寸的方形区域，内嵌圆形头像与旋转环。
+		 * 逻辑：relative 作为 absolute 子元素的定位参照；inset:0 使子层铺满。 */
+		.avatar-container {
+			position: relative;
+			width: 12rem;
+			height: 12rem;
+			margin: 1rem 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		@media (min-width: 768px) {
+			.avatar-container {
+				width: 16rem;
+				height: 16rem;
 			}
-			.hover\:pause:hover {
-				animation-play-state: paused;
-			}
-		</style>
+		}
+
+		.avatar-svg,
+		.avatar-spin {
+			position: absolute;
+			inset: 0;
+		}
+
+		.avatar-svg svg,
+		.avatar-spin svg {
+			width: 100%;
+			height: 100%;
+		}
+
+		/* 视觉：圆弧上的文字样式，全大写、字间距加宽。
+		 * fill：SVG 中文字的「颜色」等价属性。 */
+		.circle-text {
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.2em;
+			fill: #111827;
+		}
+
+		/* 视觉：圆弧内链接的悬停/点击反馈，颜色变灰、透明度微调。
+		 * 逻辑：transition 使变化平滑；:active 对应鼠标按下瞬间。 */
+		.circle-svg a {
+			fill: inherit;
+			color: inherit;
+			text-decoration: none;
+			cursor: pointer;
+			transition: fill 0.15s ease, opacity 0.15s ease;
+		}
+
+		.circle-svg a:hover {
+			fill: #4b5563;
+			opacity: 0.9;
+		}
+
+		.circle-svg a:active {
+			fill: #6b7280;
+			opacity: 1;
+		}
+
+		/* 视觉：光环持续旋转，悬停时暂停便于点击。
+		 * 逻辑：animation 绑定 @keyframes spin；linear 匀速；infinite 无限循环。 */
+		.avatar-spin {
+			animation: spin 20s linear infinite;
+			z-index: 20;
+		}
+
+		.avatar-spin:hover {
+			animation-play-state: paused;
+		}
+
+		/* 定义旋转动画：从 0deg 到 360deg，形成完整一圈。 */
+		@keyframes spin {
+			from { transform: rotate(0deg); }
+			to { transform: rotate(360deg); }
+		}
+
+		/* 视觉：自我介绍段落，居中、最大宽度限制、灰色文字。 */
+		.intro {
+			margin-top: 3rem;
+			max-width: 32rem;
+			text-align: center;
+			padding: 0 1rem;
+		}
+
+		/* 视觉：自我介绍文字大小与行高，灰色以提高可读性。 */
+		.intro-text {
+			font-size: 1.25rem;
+			color: #4b5563;
+			line-height: 1.6;
+		}
+	</style>
+
 	<script>
-  // 你的自我介绍内容
-  const text = "Aspiring Cognitive Science researcher and AI Strategist focused on building human-centered intelligent systems. I explore how AI shifts human cognitive landscapes to identify emerging market opportunities and next-generation pain points, leveraging Machine Learning to enhance user accessibility and streamline digital-physical workflows.";
-  const speed = 50; // 打印速度 (毫秒)
-  let i = 0;
+		/* 视觉：打字机逐字显示自我介绍。
+		 * 逻辑：递归调用 setTimeout，每次追加一个字符；speed 控制间隔（毫秒）。 */
+		const text = "Aspiring Cognitive Science researcher and AI Strategist focused on building human-centered intelligent systems. I explore how AI shifts human cognitive landscapes to identify emerging market opportunities and next-generation pain points, leveraging Machine Learning to enhance user accessibility and streamline digital-physical workflows.";
+		const speed = 50;
+		let i = 0;
 
-  function typeWriter() {
-    if (i < text.length) {
-      const element = document.getElementById("typewriter");
-      if (element) {
-        element.innerHTML += text.charAt(i);
-        i++;
-        setTimeout(typeWriter,speed);
-      }
-    }
-  }
+		function typeWriter() {
+			/* 逐字符追加：取 text[i] 写入 DOM，i 递增，递归 scheduling 下一字符。 */
+			if (i < text.length) {
+				const element = document.getElementById("typewriter");
+				if (element) {
+					element.innerHTML += text.charAt(i);
+					i++;
+					setTimeout(typeWriter, speed);
+				}
+			}
+		}
 
-  // 页面加载完成后开始打印
-  window.onload = typeWriter;
-</script>
-	</body>
-</html>
+		window.addEventListener("load", typeWriter);
+	</script>
+</Layout>

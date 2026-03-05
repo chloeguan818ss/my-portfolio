@@ -1,28 +1,1020 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+/* ============================================================
+ * 数据层（Data Layer）：insightsData 数组
+ * 逻辑：每条 Insight 包含 id、标题、评论正文、原文链接、标签（Tags）。
+ * 后续可通过 API 将阅读时的评论自动推送至此数组（模拟自动化 Automated Simulation）。
+ * 术语：Cognitive Map（认知地图）——用图结构可视化思想与知识之间的关联。
+ * ============================================================ */
+interface InsightItem {
+	id: string;
+	title: string;
+	comment: string;
+	articleLink: string;
+	articleTitle?: string;
+	tags: string[];
+}
+
+const insightsData: InsightItem[] = [
+	{
+		id: "insight-1",
+		title: "What happened to cognitive science?",
+		comment: "界面中的选项过多会增加决策负担，应遵循渐进披露（Progressive Disclosure）原则，按需展示次要信息。",
+		articleLink: "https://www.nature.com/articles/s41562-019-0626-2",
+		articleTitle: "What happened to cognitive science?",
+		tags: ["Human behaviour", "Cognition"],
+	},
+	{
+		id: "insight-2",
+		title: "具身交互与物理隐喻",
+		comment: "物理世界的隐喻（如拖拽、滑动）能降低学习成本，但需注意可发现性（Discoverability）。",
+		articleLink: "https://example.com/article-2",
+		articleTitle: "Embodied Interaction",
+		tags: ["HCI", "Embodiment", "Metaphor"],
+	},
+	{
+		id: "insight-3",
+		title: "AI 与决策支持",
+		comment: "AI 作为决策支持时应保持可解释性（Explainability），避免黑箱带来的信任问题。",
+		articleLink: "https://example.com/article-3",
+		articleTitle: "AI for Decision Support",
+		tags: ["AI", "UX", "Trust"],
+	},
+	{
+		id: "insight-4",
+		title: "情境感知系统",
+		comment: "系统若能感知用户当前情境（位置、时间、任务），可提供更贴合的推荐与提示。",
+		articleLink: "https://example.com/article-4",
+		articleTitle: "Context-Aware Systems",
+		tags: ["HCI", "Context", "Personalization"],
+	},
+	{
+		id: "insight-5",
+		title: "可访问性与包容设计",
+		comment: "可访问性（Accessibility）不是附加功能，应从设计之初就纳入，惠及所有用户。",
+		articleLink: "https://example.com/article-5",
+		articleTitle: "Inclusive Design",
+		tags: ["UX", "Accessibility", "Inclusion"],
+	},
+];
+
+/* ============================================================
+ * 数据层：Questions 数组（用于「Questions in my head...」交互区）
+ * 逻辑：每条含 id、问题正文、模拟的「他人回答」列表；后续可接 API 真实留言。
+ * 示例主题：Human-AI Interaction（人机交互）、认知景观、技术与社会摩擦。
+ * ============================================================ */
+interface QuestionItem {
+	id: string;
+	text: string;
+	answers: string[]; /* 他人回答（Unlock 后展示） */
+}
+
+const questionsData: QuestionItem[] = [
+	{
+		id: "q1",
+		text: "当 AI 成为日常决策的「副驾驶」时，人类如何保持认知主体性（Agency）而不沦为确认按钮的点击者？",
+		answers: ["可以约定：AI 只给选项与依据，最终决策必须由人做出并记录理由。", "我认为关键在「可解释性」——知道 AI 为何这样建议，才能判断是否采纳。"],
+	},
+	{
+		id: "q2",
+		text: "认知景观（Cognitive Landscape）被算法不断重塑时，我们如何区分「自己真正想要的」与「被推荐系统养成的偏好」？",
+		answers: ["定期做「信息斋戒」：一段时间不用推荐流，观察自己会主动找什么。", "可以保留一块「非算法」的信息入口，比如固定订阅的 newsletter、朋友推荐。"],
+	},
+	{
+		id: "q3",
+		text: "技术与社会摩擦：当自动化（Automation）取代大量中间环节，我们失去的除了岗位，还有哪些「隐性知识」与接触点？",
+		answers: ["隐性知识往往在「做」的过程中传递，自动化若完全跳过人工环节，这些经验就难以传承。", "接触点减少也会影响信任建立——以前通过人工客服、线下窗口建立的信任，需要新的设计来替代。"],
+	},
+	{
+		id: "q4",
+		text: "Human-AI 协作中，信任（Trust）的建立与破裂往往不对称：一次错误就可能崩塌。设计上如何缓冲这种不对称？",
+		answers: ["让 AI 明确标出置信度与不确定性，避免「看起来非常确定」的错觉。", "提供「撤销 / 回退」与「人工复核」的出口，让用户感到始终有兜底。"],
+	},
+];
 ---
 
 <Layout title="Insights - My Portfolio">
-	<!-- 视觉：页面中央显示大标题 "Insights" 作为占位。
-	     逻辑：flex 居中使标题在可视区域内垂直水平居中。 -->
-	<section class="page-placeholder">
-		<h1>Insights</h1>
-	</section>
+
+	<!-- ============================================================
+	     视觉：纯白背景、单色极简，与主页一致（Visual Style）。
+	     主区域为力导向图容器，右侧为可滑出的侧边栏（Sidebar）。
+	     ============================================================ -->
+	<div class="insights-page">
+		<header class="insights-header">
+			<h1 class="insights-title">Insights</h1>
+			<p class="insights-subtitle">认知地图（Cognitive Map）——按标签关联的思想节点，点击节点查看详情。</p>
+		</header>
+
+		<!-- 力导向图（Force-Directed Graph）容器：占满剩余空间，支持缩放与拖拽 -->
+		<div class="graph-wrap">
+			<div id="graph-container" class="graph-container"></div>
+		</div>
+
+		<!-- ============================================================
+		     侧边栏（Sidebar）：点击节点时滑出，展示该条 Insight 的评论与原文链接。
+		     逻辑：默认 translateX(100%) 隐藏；添加 .open 时 translateX(0) 滑入。
+		     ============================================================ -->
+		<aside id="insights-sidebar" class="sidebar" aria-hidden="true">
+			<div class="sidebar-inner">
+				<button type="button" class="sidebar-close" id="sidebar-close" aria-label="关闭侧边栏">×</button>
+				<h2 id="sidebar-title" class="sidebar-title"></h2>
+				<p id="sidebar-comment" class="sidebar-comment"></p>
+				<a id="sidebar-link" class="sidebar-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+			</div>
+		</aside>
+
+		<!-- 侧边栏遮罩层（Sidebar Backdrop）：用于点击空白处关闭侧边栏 / 底部抽屉（Bottom Sheet） -->
+		<div id="insights-sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+		<!-- ============================================================
+		     「Questions in my head...」交互区（页面底部）
+		     视觉：大标题（text-black text-3xl font-bold mb-8）+ 瀑布流（Masonry Layout）问题卡片；白底、极细灰边，单色调（Monochromatic）。
+		     交互：点击问题 → 打开模态框（Modal）；左侧问题、右侧留言板（textarea）；提交前「他人回答」模糊（Blur），提交后解锁（Unlock）并展示。
+		     术语：Masonry Layout（瀑布流）、Modal（模态框）、Blur（模糊）、Unlock（解锁机制）。
+		     ============================================================ -->
+		<section class="questions-section">
+			<h2 class="questions-heading">Questions in my head...</h2>
+			<div class="questions-masonry">
+				{questionsData.map((q) => (
+					<button
+						type="button"
+						class="question-card"
+						data-question-id={q.id}
+						data-question-text={q.text}
+						data-question-answers={JSON.stringify(q.answers)}
+					>
+						{q.text}
+					</button>
+				))}
+			</div>
+		</section>
+
+		<!-- 模态框（Modal）：点击问题后弹出，左侧问题、右侧留言板；提交后解锁「他人回答」 -->
+		<div id="questions-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-question-title" aria-hidden="true">
+			<div class="modal-backdrop" id="modal-backdrop"></div>
+			<div class="modal-dialog">
+				<button type="button" class="modal-close" id="modal-close" aria-label="关闭">×</button>
+				<h3 id="modal-question-title" class="modal-question-title"></h3>
+				<div class="modal-body">
+					<div class="modal-left">
+						<p id="modal-question-text" class="modal-question-text"></p>
+					</div>
+					<div class="modal-right">
+						<!-- 表单区域（Form）：昵称 + 留言输入（textarea），提交后隐藏，用于真实评论交互（Real Comment Interaction） -->
+						<div id="modal-form" class="modal-form">
+							<label for="modal-nickname" class="modal-label">Your Nickname (Optional)</label>
+							<input
+								id="modal-nickname"
+								class="modal-input"
+								type="text"
+								placeholder="Your Nickname (Optional)"
+							/>
+							<label for="modal-textarea" class="modal-label">留下你的想法</label>
+							<textarea id="modal-textarea" class="modal-textarea" placeholder="写几句你的看法或回答..." rows={5}></textarea>
+							<button type="button" class="modal-submit" id="modal-submit">提交</button>
+						</div>
+
+						<!-- 提交成功反馈（Success Feedback）：显示“Thank you!”提示 -->
+						<div id="modal-success" class="modal-success">
+							<p>已成功加入想法池，正在为这条问题增加新的视角。</p>
+						</div>
+					</div>
+				</div>
+				<div id="modal-answers-wrap" class="modal-answers-wrap">
+					<h4 class="modal-answers-title">他人回答</h4>
+					<ul id="modal-answers-list" class="modal-answers-list"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<style>
-		/* 视觉：占位区域占满可视高度，标题居中。
-		 * 逻辑：min-height 扣除导航和底部留白；flex 实现居中。 */
-		.page-placeholder {
-			min-height: calc(100vh - 120px);
+		/* ============================================================
+		 * 页面容器：纯白背景、全高，与主页单色极简风格一致（Monochromatic）。
+		 * ============================================================ */
+		.insights-page {
+			position: relative;
+			min-height: calc(100vh - 60px);
+			background: #ffffff;
+			padding: 1.5rem 1rem 2rem;
+		}
+
+		.insights-header {
+			max-width: 1200px;
+			margin: 0 auto 1.5rem;
+		}
+
+		.insights-title {
+			font-size: 2rem;
+			font-weight: 700;
+			color: #000000;
+			margin: 0 0 0.35rem;
+		}
+
+		.insights-subtitle {
+			font-size: 0.95rem;
+			color: #374151;
+			margin: 0;
+		}
+
+		/* 图容器：占满可视区域，用于挂载 SVG（D3 将在此绘制节点与边） */
+		.graph-wrap {
+			position: relative;
+			width: 100%;
+			height: calc(100vh - 180px);
+			min-height: 400px;
+			max-width: 1200px;
+			margin: 0 auto;
+			border: 1px solid #e5e7eb;
+			border-radius: 0.5rem;
+			overflow: hidden;
+			background: #ffffff;
+		}
+
+		.graph-container {
+			width: 100%;
+			height: 100%;
+		}
+
+		/* 选中节点 Active State：描边加粗 + 轻微发光（单色黑灰系），提升视觉显著性（Visual Saliency） */
+		.nodes g.active-node circle {
+			fill: #000000;
+			stroke: #000000;
+			stroke-width: 2;
+			filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
+		}
+
+		/* 侧边栏（Sidebar）：移动端为 Bottom Sheet，桌面端为右侧滑出 Panel */		
+		.sidebar {
+			position: fixed;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			top: auto;
+			width: 100%;
+			max-width: 100%;
+			max-height: 75vh;
+			background: #ffffff;
+			border-top: 1px solid #e5e7eb;
+			box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
+			z-index: 120;
+			transform: translateY(100%);
+			transition: transform 0.3s ease;
+			overflow-y: auto;
+			/* backdrop-blur：让底部浮层更通透（Backdrop Blur） */
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+		}
+
+		.sidebar.open {
+			transform: translateY(0);
+		}
+
+		/* 桌面端（Desktop）：改为右侧滑出 Panel，覆盖 Bottom Sheet 布局设置 */
+		@media (min-width: 768px) {
+			.sidebar {
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: auto;
+				width: 100%;
+				max-width: 380px;
+				height: 100vh;
+				max-height: none;
+				border-top: none;
+				border-left: 1px solid #e5e7eb;
+				box-shadow: -4px 0 24px rgba(0, 0, 0, 0.06);
+				transform: translateX(100%);
+			}
+
+			.sidebar.open {
+				transform: translateX(0);
+			}
+		}
+
+		/* 侧边栏遮罩（Backdrop）：点击空白处关闭 Side Panel / Bottom Sheet */
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.25);
+			z-index: 110;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s ease;
+		}
+
+		.sidebar-backdrop.open {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.sidebar-inner {
+			padding: 2rem 1.5rem;
+		}
+
+		.sidebar-close {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			width: 2rem;
+			height: 2rem;
+			border: none;
+			background: transparent;
+			font-size: 1.5rem;
+			line-height: 1;
+			color: #374151;
+			cursor: pointer;
+			border-radius: 0.25rem;
+			transition: background 0.2s, color 0.2s;
+		}
+
+		.sidebar-close:hover {
+			background: #f3f4f6;
+			color: #000000;
+		}
+
+		.sidebar-title {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: #000000;
+			margin: 0 0 1rem;
+			padding-right: 2rem;
+		}
+
+		.sidebar-comment {
+			font-size: 0.95rem;
+			color: #374151;
+			line-height: 1.65;
+			margin: 0 0 1.25rem;
+		}
+
+		.sidebar-link {
+			display: inline-block;
+			font-size: 0.9rem;
+			font-weight: 500;
+			color: #1d4ed8;
+			text-decoration: none;
+			border-bottom: 1px solid #1d4ed8;
+			transition: color 0.2s, border-color 0.2s;
+		}
+
+		.sidebar-link:hover {
+			color: #1e40af;
+			border-color: #1e40af;
+		}
+
+		/* ============================================================
+		 * 「Questions in my head...」区域
+		 * 视觉：标题大号加粗黑体（text-black text-3xl font-bold mb-8）；纯白背景，单色调（Monochromatic）。
+		 * ============================================================ */
+		.questions-section {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 4rem 0 3rem;
+		}
+
+		.questions-heading {
+			font-size: 1.875rem; /* text-3xl */
+			font-weight: 700;
+			color: #000000;
+			margin: 0 0 2rem;
+		}
+
+		/* 瀑布流布局（Masonry Layout）：多列等高错落，无需固定高度 */
+		.questions-masonry {
+			column-count: 1;
+			column-gap: 1rem;
+		}
+
+		@media (min-width: 640px) {
+			.questions-masonry {
+				column-count: 2;
+			}
+		}
+
+		@media (min-width: 1024px) {
+			.questions-masonry {
+				column-count: 3;
+			}
+		}
+
+		/* 问题卡片：白底、极细灰边（border-gray-100）、圆角，可点击 */
+		.question-card {
+			display: block;
+			width: 100%;
+			margin-bottom: 1rem;
+			padding: 1.25rem;
+			background: #ffffff;
+			border: 1px solid #f3f4f6;
+			border-radius: 0.5rem;
+			text-align: left;
+			font-size: 0.95rem;
+			line-height: 1.55;
+			color: #111827;
+			cursor: pointer;
+			transition: border-color 0.2s, box-shadow 0.2s;
+			break-inside: avoid;
+			font-family: inherit;
+		}
+
+		.question-card:hover {
+			border-color: #e5e7eb;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+		}
+
+		/* ============================================================
+		 * 模态框（Modal）：遮罩 + 对话框，点击问题打开，左侧问题、右侧 textarea 留言板。
+		 * ============================================================ */
+		.modal {
+			position: fixed;
+			inset: 0;
+			z-index: 200;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			padding: 1rem;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity 0.25s ease, visibility 0.25s ease;
 		}
 
-		.page-placeholder h1 {
-			font-size: 2.5rem;
-			font-weight: 700;
+		.modal.open {
+			opacity: 1;
+			visibility: visible;
+		}
+
+		.modal-backdrop {
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.4);
+		}
+
+		.modal-dialog {
+			position: relative;
+			width: 100%;
+			max-width: 640px;
+			max-height: 90vh;
+			overflow-y: auto;
+			background: #ffffff;
+			border: 1px solid #e5e7eb;
+			border-radius: 0.5rem;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+			padding: 1.75rem;
+		}
+
+		.modal-close {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			width: 2rem;
+			height: 2rem;
+			border: none;
+			background: transparent;
+			font-size: 1.5rem;
+			line-height: 1;
+			color: #374151;
+			cursor: pointer;
+			border-radius: 0.25rem;
+			transition: background 0.2s, color 0.2s;
+		}
+
+		.modal-close:hover {
+			background: #f3f4f6;
+			color: #000000;
+		}
+
+		.modal-question-title {
+			font-size: 1rem;
+			font-weight: 600;
+			color: #374151;
+			margin: 0 2rem 0 0;
+		}
+
+		.modal-body {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1.5rem;
+			margin-top: 1rem;
+		}
+
+		@media (max-width: 600px) {
+			.modal-body {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.modal-question-text {
+			font-size: 0.95rem;
 			color: #111827;
+			line-height: 1.6;
+			margin: 0;
+		}
+
+		.modal-right {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		/* 昵称输入框（Nickname Input）：简洁单行 input，保持单色极简风格 */		
+		.modal-input {
+			width: 100%;
+			padding: 0.5rem 0.75rem;
+			border: 1px solid #e5e7eb;
+			border-radius: 0.375rem;
+			font-size: 0.9rem;
+			font-family: inherit;
+		}
+
+		.modal-input:focus {
+			outline: none;
+			border-color: #111827;
+		}
+
+		.modal-label {
+			font-size: 0.875rem;
+			font-weight: 500;
+			color: #374151;
+		}
+
+		.modal-textarea {
+			width: 100%;
+			padding: 0.75rem;
+			border: 1px solid #e5e7eb;
+			border-radius: 0.375rem;
+			font-size: 0.9rem;
+			font-family: inherit;
+			resize: vertical;
+			min-height: 100px;
+		}
+
+		.modal-textarea:focus {
+			outline: none;
+			border-color: #111827;
+		}
+
+		.modal-submit {
+			align-self: flex-start;
+			padding: 0.5rem 1.25rem;
+			background: #111827;
+			color: #ffffff;
+			border: none;
+			border-radius: 0.375rem;
+			font-size: 0.875rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+
+		.modal-submit:hover {
+			background: #374151;
+		}
+
+		/* 表单容器（Form Container）和成功反馈（Success Feedback）切换显示 */		
+		.modal-form.hidden {
+			display: none;
+		}
+
+		.modal-success {
+			display: none;
+			margin-top: 0.5rem;
+			font-size: 0.9rem;
+			color: #16a34a;
+		}
+
+		.modal-success.visible {
+			display: block;
+		}
+
+		/* 他人回答区域：未提交前模糊（Blur），提交后解锁（Unlock）并淡入 */
+		.modal-answers-wrap {
+			margin-top: 1.5rem;
+			padding-top: 1.5rem;
+			border-top: 1px solid #f3f4f6;
+			filter: blur(6px);
+			opacity: 0.5;
+			pointer-events: none;
+			transition: filter 0.4s ease, opacity 0.4s ease;
+		}
+
+		.modal-answers-wrap.unlocked {
+			filter: blur(0);
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.modal-answers-title {
+			font-size: 0.875rem;
+			font-weight: 600;
+			color: #374151;
+			margin: 0 0 0.75rem;
+		}
+
+		.modal-answers-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.modal-answers-list li {
+			padding: 0.6rem 0;
+			font-size: 0.9rem;
+			color: #1f2937;
+			line-height: 1.5;
+			border-bottom: 1px solid #f3f4f6;
+		}
+
+		.modal-answers-list li:last-child {
+			border-bottom: none;
 		}
 	</style>
+
+	<!--
+		术语（Terminology）：
+		- Force-Directed Graph（力导向图）：节点与边在物理模拟下自动排布，有关联的节点会靠近。
+		- Zoom（缩放）/ Drag（拖拽）：HCI 优化，便于用户探索大型图。
+		- Sidebar（侧边栏）：从侧边滑出的面板，用于展示详情而不离开当前页。
+	-->
+
+	<script define:vars={{ insightsData }}>
+		import * as d3 from 'd3';
+		import { supabase } from '../lib/supabaseClient';
+
+		/* ============================================================
+		 * 根据 Tags 构建边（Links）：若两条 Insight 拥有至少一个相同标签，则连一条边。
+		 * 逻辑：双重循环遍历节点对，求 tags 交集，非空则 push 一条 link。
+		 * ============================================================ */
+		function buildLinks(nodes: { id: string; tags: string[] }[]) {
+			const links: { source: string; target: string }[] = [];
+			for (let i = 0; i < nodes.length; i++) {
+				for (let j = i + 1; j < nodes.length; j++) {
+					const a = nodes[i].tags;
+					const b = nodes[j].tags;
+					if (a.some((t: string) => b.includes(t))) {
+						links.push({ source: nodes[i].id, target: nodes[j].id });
+					}
+				}
+			}
+			return links;
+		}
+
+		/* ============================================================
+		 * 初始化力导向图（Force-Directed Graph）
+		 * 逻辑：D3 的 forceSimulation 驱动节点与边的位置；forceLink 拉近有边相连的节点，
+		 * forceManyBody 产生斥力避免重叠，forceCenter 将整体居中。
+		 * ============================================================ */
+		const container = document.getElementById('graph-container');
+		if (!container) throw new Error('graph-container not found');
+
+		/* 将 Supabase 客户端挂到 window 上，供下方 Questions 脚本使用
+		 * 术语：Global Namespace（全局命名空间）——将对象挂在 window 便于不同脚本共享。 */
+		if (typeof window !== 'undefined') {
+			// @ts-ignore
+			window.supabase = supabase;
+			// 调试：确认浏览器端是否拿到了 Supabase 客户端实例
+			console.log('[Insights] window.supabase set:', !!window.supabase);
+		}
+
+		const width = container.clientWidth;
+		const height = container.clientHeight;
+
+		const sidebarBackdrop = document.getElementById('insights-sidebar-backdrop');
+
+		const nodes = insightsData.map((d) => ({
+			...d,
+			// D3 力模拟会为节点附加 x, y，此处可省略，由 simulation 初始化
+		}));
+
+		const links = buildLinks(nodes);
+
+		/* 力模拟（Force Simulation） */
+		const simulation = d3
+			.forceSimulation(nodes)
+			.force('link', d3.forceLink(links).id((d: { id: string }) => d.id).distance(120))
+			.force('charge', d3.forceManyBody().strength(-280))
+			.force('center', d3.forceCenter(width / 2, height / 2));
+
+		/* SVG：挂载到 graph-container，用于缩放（Zoom）的 g 包裹所有图元 */
+		const svg = d3
+			.select(container)
+			.append('svg')
+			.attr('width', width)
+			.attr('height', height)
+			.attr('viewBox', [0, 0, width, height]);
+
+		/* 缩放（Zoom）行为：鼠标滚轮缩放，拖拽画布平移，提升探索体验（HCI Optimization） */
+		const g = svg.append('g');
+		svg.call(
+			d3
+				.zoom()
+				.scaleExtent([0.2, 4])
+				.on('zoom', (event) => g.attr('transform', event.transform))
+		);
+
+		/* 边（Links）：线条，黑色/深灰，无箭头 */
+		const link = g
+			.append('g')
+			.attr('class', 'links')
+			.selectAll('line')
+			.data(links)
+			.join('line')
+			.attr('stroke', '#9ca3af')
+			.attr('stroke-opacity', 0.6)
+			.attr('stroke-width', 1);
+
+		/* 节点组（Nodes）：每个节点一个 g，内含圆 + 文字 */
+		const node = g
+			.append('g')
+			.attr('class', 'nodes')
+			.selectAll('g')
+			.data(nodes)
+			.join('g')
+			.attr('cursor', 'pointer')
+			.call(
+				d3
+					.drag()
+					.on('start', (event, d: { fx?: number; fy?: number }) => {
+						if (!event.active) simulation.alphaTarget(0.3).restart();
+						d.fx = d.x;
+						d.fy = d.y;
+					})
+					.on('drag', (event, d: { fx?: number; fy?: number }) => {
+						d.fx = event.x;
+						d.fy = event.y;
+					})
+					.on('end', (event, d: { fx?: number; fy?: number }) => {
+						if (!event.active) simulation.alphaTarget(0);
+						d.fx = null;
+						d.fy = null;
+					})
+			)
+			.on('click', (event, d: (typeof insightsData)[0]) => {
+				/* 点击节点：打开侧边栏并填充该条 Insight 的详情（Data Interaction） */
+				const sidebar = document.getElementById('insights-sidebar');
+				const titleEl = document.getElementById('sidebar-title');
+				const commentEl = document.getElementById('sidebar-comment');
+				const linkEl = document.getElementById('sidebar-link') as HTMLAnchorElement;
+				if (sidebar && titleEl && commentEl && linkEl) {
+					/* 先清除所有节点的激活态（Active State），再为当前节点添加 active-node 类 */
+					node.classed('active-node', false);
+					d3.select(event.currentTarget as SVGGElement).classed('active-node', true);
+
+					titleEl.textContent = d.title;
+					commentEl.textContent = d.comment;
+					linkEl.href = d.articleLink;
+					linkEl.textContent = d.articleTitle || '阅读原文';
+					sidebar.classList.add('open');
+					sidebar.setAttribute('aria-hidden', 'false');
+					sidebarBackdrop?.classList.add('open');
+					sidebarBackdrop?.setAttribute('aria-hidden', 'false');
+				}
+			});
+
+		node.append('circle').attr('r', 10).attr('fill', '#111827').attr('stroke', '#374151').attr('stroke-width', 1);
+
+		node
+			.append('text')
+			.text((d: { title: string }) => d.title)
+			.attr('font-size', 11)
+			.attr('fill', '#111827')
+			.attr('dx', 14)
+			.attr('dy', 4)
+			.style('pointer-events', 'none');
+
+		/* 每帧将模拟得到的坐标同步到 DOM（tick 事件） */
+		simulation.on('tick', () => {
+			link
+				.attr('x1', (d: { source: { x: number } }) => d.source.x)
+				.attr('y1', (d: { source: { y: number } }) => d.source.y)
+				.attr('x2', (d: { target: { x: number } }) => d.target.x)
+				.attr('y2', (d: { target: { y: number } }) => d.target.y);
+			node.attr('transform', (d: { x: number; y: number }) => `translate(${d.x},${d.y})`);
+		});
+
+		/* 侧边栏关闭函数：隐藏 Panel / Bottom Sheet，并移除所有节点的激活态（Active State） */
+		function closeSidebar() {
+			const sidebar = document.getElementById('insights-sidebar');
+			if (sidebar) {
+				sidebar.classList.remove('open');
+				sidebar.setAttribute('aria-hidden', 'true');
+			}
+			sidebarBackdrop?.classList.remove('open');
+			sidebarBackdrop?.setAttribute('aria-hidden', 'true');
+			node.classed('active-node', false);
+		}
+
+		/* 侧边栏关闭按钮 + 点击遮罩关闭（点击背景空白处） */
+		document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
+		sidebarBackdrop?.addEventListener('click', closeSidebar);
+	</script>
+
+	<!-- ============================================================
+	     「Questions in my head...」交互逻辑：点击问题 → 打开 Modal；
+	     提交（Submit）后解锁「他人回答」区域（移除 Blur，展示回答列表）。
+	     术语：Modal（模态框）、Masonry Layout（瀑布流）、Unlock（解锁机制）。
+	     ============================================================ -->
+	<script is:inline>
+		/* ============================================================
+		 * Questions 模块：真实评论交互（Real Comment Interaction）
+		 * 逻辑：
+		 * - Local State（本地状态）allAnswers：缓存所有问题的回答，避免重复请求。
+		 * - Supabase：通过 supabaseClient 调用后端数据库，插入（insert）与查询（select）。
+		 * - UX：提交时显示 Sending...，成功后隐藏表单并实时刷新评论列表。
+		 * ============================================================ */
+		const modal = document.getElementById('questions-modal');
+		const modalBackdrop = document.getElementById('modal-backdrop');
+		const modalClose = document.getElementById('modal-close');
+		const modalQuestionTitle = document.getElementById('modal-question-title');
+		const modalQuestionText = document.getElementById('modal-question-text');
+		const modalNickname = document.getElementById('modal-nickname');
+		const modalTextarea = document.getElementById('modal-textarea');
+		const modalSubmit = document.getElementById('modal-submit');
+		const modalForm = document.getElementById('modal-form');
+		const modalSuccess = document.getElementById('modal-success');
+		const modalAnswersWrap = document.getElementById('modal-answers-wrap');
+		const modalAnswersList = document.getElementById('modal-answers-list');
+
+		/* 本地状态（Local State）：存放所有问题的回答列表（allAnswers） */
+		const allAnswers = [];
+		let currentQuestionId = null;
+
+		/* 从 window 读取 Supabase 客户端（在上方 D3 脚本中挂载），避免在内联脚本中使用 import */
+		const supabaseClient =
+			typeof window !== 'undefined' && window.supabase ? window.supabase : null;
+		console.log('[Questions] init', { hasSupabase: !!supabaseClient });
+
+		/* 获取 Supabase 客户端（Lazy 获取）：每次需要时从 window 读取，避免初始化顺序问题
+		 * 术语：Lazy Evaluation（惰性求值）——在真正需要时才获取依赖，降低时序耦合。 */
+		function getSupabaseClient() {
+			const client =
+				typeof window !== 'undefined' && window.supabase ? window.supabase : null;
+			if (!client) {
+				console.warn('[Questions] getSupabaseClient: Supabase not ready yet');
+			}
+			return client;
+		}
+
+		/* 从 Supabase 加载所有评论（Comments）：页面初始化时一次性拉取，填入 allAnswers */
+		async function loadInitialAnswers() {
+			const supabaseClient = getSupabaseClient();
+			if (!supabaseClient) return;
+			console.log('[Questions] loadInitialAnswers: start');
+			try {
+				const { data, error } = await supabaseClient
+					.from('comments')
+					.select('*')
+					.order('created_at', { ascending: true });
+				if (error) {
+					console.error('加载评论失败（load comments error）', error);
+					return;
+				}
+				if (Array.isArray(data)) {
+					data.forEach((row) => {
+						allAnswers.push({
+							questionId: row.question_id,
+							nickname: row.nickname || 'Anonymous',
+							content: row.content,
+							createdAt: row.created_at
+								? new Date(row.created_at).toLocaleString()
+								: new Date().toLocaleString(),
+						});
+					});
+				}
+				console.log('[Questions] loadInitialAnswers: done', { count: allAnswers.length });
+			} catch (err) {
+				console.error('加载评论异常（load comments exception）', err);
+			}
+		}
+
+		loadInitialAnswers();
+
+		/* 渲染评论列表（Comment Thread）：根据 questionId 渲染所有人的回答 */
+		function renderAnswers(questionId) {
+			if (!modalAnswersList) return;
+			modalAnswersList.innerHTML = '';
+			const related = allAnswers.filter((a) => a.questionId === questionId);
+			related.forEach((a) => {
+				const li = document.createElement('li');
+				const header = document.createElement('div');
+				header.style.display = 'flex';
+				header.style.justifyContent = 'space-between';
+				header.style.fontSize = '0.8rem';
+				header.style.color = '#6b7280';
+				const nick = document.createElement('span');
+				nick.textContent = a.nickname || 'Anonymous';
+				const time = document.createElement('span');
+				time.textContent = a.createdAt;
+				header.appendChild(nick);
+				header.appendChild(time);
+				const body = document.createElement('p');
+				body.textContent = a.content;
+				body.style.margin = '0.25rem 0 0';
+				li.appendChild(header);
+				li.appendChild(body);
+				modalAnswersList.appendChild(li);
+			});
+		}
+
+		function openModal(questionId, questionText) {
+			if (!modal || !modalQuestionTitle || !modalQuestionText || !modalAnswersWrap) return;
+			currentQuestionId = questionId;
+			console.log('[Questions] openModal', { questionId });
+			modalQuestionTitle.textContent = '问题';
+			modalQuestionText.textContent = questionText;
+			/* 重置表单与成功反馈状态 */
+			if (modalForm) modalForm.classList.remove('hidden');
+			if (modalSuccess) modalSuccess.classList.remove('visible');
+			if (modalNickname) modalNickname.value = '';
+			if (modalTextarea) modalTextarea.value = '';
+			/* 提交前「他人回答」保持模糊（Blur），但仍可预渲染已有回答 */
+			if (modalAnswersWrap) modalAnswersWrap.classList.remove('unlocked');
+			if (currentQuestionId) renderAnswers(currentQuestionId);
+			modal.classList.add('open');
+			modal.setAttribute('aria-hidden', 'false');
+		}
+
+		function closeModal() {
+			if (!modal) return;
+			modal.classList.remove('open');
+			modal.setAttribute('aria-hidden', 'true');
+		}
+
+		/* 点击问题卡片：读取 data-question-id 与 data-question-text，打开模态框并填充内容 */
+		document.querySelectorAll('.question-card').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const id = btn.getAttribute('data-question-id') || '';
+				const text = btn.getAttribute('data-question-text') || '';
+				openModal(id, text);
+			});
+		});
+
+		if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+		if (modalClose) modalClose.addEventListener('click', closeModal);
+
+		/* 提交按钮：将昵称与回答组装为对象存入 allAnswers，并通过 Supabase insert() 同步到数据库 */
+		if (modalSubmit) {
+			modalSubmit.addEventListener('click', async () => {
+				console.log('[Questions] submit clicked');
+				if (!currentQuestionId || !modalAnswersWrap) {
+					console.warn('[Questions] submit without currentQuestionId or answersWrap');
+					return;
+				}
+				const nicknameRaw =
+					modalNickname && modalNickname.value ? modalNickname.value.trim() : '';
+				const contentRaw =
+					modalTextarea && modalTextarea.value ? modalTextarea.value.trim() : '';
+				console.log('[Questions] submit payload', { nicknameRaw, contentRaw });
+
+				const supabaseClient = getSupabaseClient();
+				if (!contentRaw || !supabaseClient) {
+					console.warn('[Questions] empty content or no Supabase client');
+					return;
+				}
+
+				const nickname = nicknameRaw || 'Anonymous';
+				const createdAt = new Date();
+
+				/* UX：提交中状态（Sending...） */
+				const originalText = modalSubmit.textContent;
+				modalSubmit.textContent = 'Sending...';
+				modalSubmit.setAttribute('disabled', 'true');
+
+				try {
+					console.log('[Questions] before Supabase insert', {
+						questionId: currentQuestionId,
+						nickname,
+						content: contentRaw,
+					});
+					const { error } = await supabaseClient.from('comments').insert({
+						question_id: currentQuestionId,
+						nickname,
+						content: contentRaw,
+					});
+					console.log('[Questions] after Supabase insert', { error });
+					if (error) {
+						console.error('提交评论失败（insert comment error）', error);
+						return;
+					}
+
+					allAnswers.push({
+						questionId: currentQuestionId,
+						nickname,
+						content: contentRaw,
+						createdAt: createdAt.toLocaleString(),
+					});
+					renderAnswers(currentQuestionId);
+					modalAnswersWrap.classList.add('unlocked');
+					if (modalForm) modalForm.classList.add('hidden');
+					if (modalSuccess) modalSuccess.classList.add('visible');
+				} catch (err) {
+					console.error('提交评论异常（insert comment exception）', err);
+				} finally {
+					modalSubmit.textContent = originalText || '提交';
+					modalSubmit.removeAttribute('disabled');
+				}
+			});
+		}
+	</script>
+
 </Layout>

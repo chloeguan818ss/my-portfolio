@@ -8,9 +8,9 @@
  * ============================================================ */
 import { createClient } from '@supabase/supabase-js';
 
-// 注意：在前端使用的环境变量必须以 PUBLIC_ 前缀命名（Astro 要求）		
-const supabaseUrl = "https://mgpvaiilmqskjdschiei.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHBhdWlsbXFzc2tqZHNjaGllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMTUyOTAsImV4cCI6MjA1NjY5MTI5MH0.qdUq71NzRk4xB4Cn3ZQh_mDmC9Hc-tQwLJZpB8jx8k";
+// 注意：在前端使用的环境变量必须以 PUBLIC_ 前缀命名（Astro 要求）
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('缺少 Supabase 环境变量：请在 .env 中设置 PUBLIC_SUPABASE_URL 和 PUBLIC_SUPABASE_ANON_KEY');

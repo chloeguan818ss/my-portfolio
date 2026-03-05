@@ -1,28 +1,421 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+/* ============================================================
+ * 数据层（Data Layer）：项目数组（Projects Array）
+ * 逻辑：用 TypeScript 接口（Interface）定义每个项目卡片的数据结构（Schema）。
+ * 一致性（Consistency）：与 index.astro 的简约风格统一，采用单色调（Monochromatic）配色。
+ * ============================================================ */
+interface Project {
+	id: number;
+	title: string;
+	description: string;
+	primaryTags: string[];    /* 主标签（Primary Tags）：用于顶部筛选栏过滤 */
+	techKeywords: string[];   /* 技术关键词（Tech Keywords）：悬停时通过渐进披露（Progressive Disclosure）展示 */
+	colorTheme: 'blue' | 'purple' | 'green' | 'orange'; /* 主题色，用于标签极淡背景（Pastel），非发光 */
+	size: 'large' | 'medium' | 'small'; /* 卡片在 Bento Grid 中的尺寸 */
+}
+
+const projects: Project[] = [
+	{
+		id: 1,
+		title: "ASL Translator",
+		description: "A real-time American Sign Language translator using EMG muscle sensors and deep learning to bridge communication for the Deaf community.",
+		primaryTags: ["AI", "Hardware"],
+		techKeywords: ["EMG", "Deep Learning", "PyTorch", "Signal Processing", "CNN"],
+		colorTheme: "blue",
+		size: "large",
+	},
+	{
+		id: 2,
+		title: "MHA Redesign",
+		description: "A UX strategy overhaul for a Mental Health App, integrating an AI chatbot to improve user engagement and reduce friction in therapy workflows.",
+		primaryTags: ["UX", "AI"],
+		techKeywords: ["Figma", "Strategy", "Chatbot Design", "User Research", "Accessibility"],
+		colorTheme: "purple",
+		size: "medium",
+	},
+	{
+		id: 3,
+		title: "Metis OS",
+		description: "An ambient operating system concept designed around physical triggers and environmental context, redefining how humans interact with their digital space.",
+		primaryTags: ["Product", "HCI"],
+		techKeywords: ["Physical Triggers", "Ambient OS", "Context Awareness", "HCI Theory", "Prototyping"],
+		colorTheme: "green",
+		size: "medium",
+	},
+];
+
+/* 从所有项目的 primaryTags 中提取唯一标签，构建过滤器按钮列表 */
+const allTags = ["All", ...new Set(projects.flatMap(p => p.primaryTags))];
 ---
 
 <Layout title="Projects - My Portfolio">
-	<!-- 视觉：页面中央显示大标题 "Projects" 作为占位。
-	     逻辑：flex 居中使标题在可视区域内垂直水平居中。 -->
-	<section class="page-placeholder">
-		<h1>Projects</h1>
-	</section>
+
+	<!-- ============================================================
+	     视觉：纯白背景（bg-white），与 index.astro 单色调（Monochromatic）一致。
+	     逻辑：移除 Mesh Gradient，仅保留留白（Whitespace）与居中布局，保持一致性（Consistency）。
+	     ============================================================ -->
+	<div class="page-wrapper">
+
+		<div class="content-wrapper">
+
+			<!-- 页面标题区域（Page Header） -->
+			<header class="page-header">
+				<h1 class="page-title">Projects</h1>
+				<p class="page-subtitle">Selected work at the intersection of AI, Human-Computer Interaction, and Design Strategy.</p>
+			</header>
+
+			<!-- ============================================================
+			     视觉：过滤栏（Filter Bar）动态激活色（Dynamic Active States）
+			     默认：白底、黑字、细灰边；激活：按领域使用对应强调色（AI=蓝、UX=紫、Hardware=橙、Data=薄荷绿）。
+			     逻辑：动态类绑定（Dynamic Class Binding）——每个按钮带 filter-{tag} 类，CSS 据此设置激活背景色。
+			     ============================================================ -->
+			<nav class="filter-bar" aria-label="Project filters">
+				{allTags.map(tag => (
+					<button
+						class={`filter-btn filter-${tag.toLowerCase()} ${tag === 'All' ? 'active' : ''}`}
+						data-filter={tag}
+						aria-pressed={tag === 'All' ? 'true' : 'false'}
+					>
+						{tag}
+					</button>
+				))}
+			</nav>
+
+			<!-- ============================================================
+			     Bento Grid（盒子网格布局）
+			     逻辑：多标签（Multi-tagging）与渐进披露（Progressive Disclosure）交互逻辑保持不变；
+			     仅视觉改为白卡、细灰边框、悬停柔和阴影。
+			     ============================================================ -->
+			<div class="bento-grid" id="projects-grid">
+				{projects.map(project => (
+					<article
+						class={`project-card card-${project.colorTheme} card-${project.size}`}
+						data-tags={project.primaryTags.join(',')}
+					>
+						<div class="card-content">
+							<!-- 主标签（Primary Tags）：极简药丸形，纯黑字 + 极淡色块背景（按领域区分） -->
+							<div class="primary-tags">
+								{project.primaryTags.map(tag => (
+									<span class={`tag tag-primary tag-${tag.toLowerCase()}`}>{tag}</span>
+								))}
+							</div>
+
+							<h2 class="card-title">{project.title}</h2>
+							<p class="card-description">{project.description}</p>
+
+							<!-- 渐进披露（Progressive Disclosure）：悬停时淡入技术关键词，逻辑不变 -->
+							<div class="tech-keywords">
+								{project.techKeywords.map(kw => (
+									<span class={`tag tag-tech tag-tech-${project.colorTheme}`}>{kw}</span>
+								))}
+							</div>
+						</div>
+					</article>
+				))}
+			</div>
+
+		</div>
+	</div>
 
 	<style>
-		/* 视觉：占位区域占满可视高度，标题居中。
-		 * 逻辑：min-height 扣除导航和底部留白；flex 实现居中。 */
-		.page-placeholder {
-			min-height: calc(100vh - 120px);
-			display: flex;
-			align-items: center;
-			justify-content: center;
+		/* ============================================================
+		 * 页面容器（Page Wrapper）
+		 * 视觉：纯白背景（Monochromatic 单色调），与 index.astro 一致。
+		 * 逻辑：移除 Mesh Gradient，仅保留留白（Whitespace）与简洁布局。
+		 * ============================================================ */
+		.page-wrapper {
+			position: relative;
+			min-height: 100vh;
+			background-color: #ffffff;
+			overflow: hidden;
 		}
 
-		.page-placeholder h1 {
-			font-size: 2.5rem;
-			font-weight: 700;
-			color: #111827;
+		/* ============================================================
+		 * 内容层（Content Wrapper）
+		 * 视觉：增加内边距与留白（Whitespace），整体居中、透气。
+		 * 逻辑：max-width 限制阅读宽度，margin: 0 auto 水平居中。
+		 * ============================================================ */
+		.content-wrapper {
+			position: relative;
+			z-index: 1;
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 5rem 2rem 8rem;
 		}
+
+		/* ============================================================
+		 * 页面标题区域（Page Header）
+		 * 视觉：大标题纯黑（text-black）、粗体（font-bold）、约 text-4xl 字号。
+		 * 逻辑：与 index.astro 使用同一无衬线字体（sans-serif），保持一致性（Consistency）。
+		 * ============================================================ */
+		.page-header {
+			margin-bottom: 3.5rem;
+		}
+
+		.page-title {
+			font-size: 2.25rem; /* text-4xl 等价 */
+			font-weight: 700;
+			color: #000000;
+			letter-spacing: -0.03em;
+			margin: 0 0 0.75rem;
+		}
+
+		.page-subtitle {
+			font-size: 1.05rem;
+			color: #1f2937; /* text-gray-800，深灰描述文字 */
+			max-width: 560px;
+			line-height: 1.6;
+			margin: 0;
+		}
+
+		/* ============================================================
+		 * 过滤栏（Filter Bar）动态激活色（Dynamic Active States）
+		 * 视觉：非激活保持极简白/灰；激活时按领域显示对应色，提升视觉显著性（Visual Saliency）。
+		 * 逻辑：动态类绑定（Dynamic Class Binding）——.filter-ai.active、.filter-ux.active 等分别指定背景色。
+		 * 映射：AI=Electric Blue，UX=Soft Purple，Hardware=Orange，Data/Product=Mint Green（emerald）。
+		 * ============================================================ */
+		.filter-bar {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin-bottom: 3rem;
+		}
+
+		.filter-btn {
+			padding: 0.5rem 1.25rem;
+			border-radius: 9999px;
+			border: 1px solid #e5e7eb;
+			background: #ffffff;
+			color: #000000;
+			font-size: 0.875rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			font-family: inherit;
+			letter-spacing: 0.02em;
+		}
+
+		.filter-btn:hover {
+			border-color: #d1d5db;
+			background: #f9fafb;
+		}
+
+		/* 激活态基础：白字、无发光；具体背景色由下方按领域覆盖 */
+		.filter-btn.active {
+			color: #ffffff;
+			box-shadow: none;
+		}
+
+		/* 按领域（Domain）的激活色映射 */
+		.filter-btn.active.filter-all      { background: #ffffff; border-color: #000000; color: #000000; } /* 纯白底 + 黑字黑边 */
+		.filter-btn.active.filter-ai       { background: #3b82f6; border-color: #3b82f6; } /* Electric Blue / bg-blue-500 */
+		.filter-btn.active.filter-ux       { background: #8b5cf6; border-color: #8b5cf6; } /* Soft Purple / bg-purple-500 */
+		.filter-btn.active.filter-hardware { background: #6b7280; border-color: #6b7280; } /* 中性灰 */
+		.filter-btn.active.filter-data     { background: #10b981; border-color: #10b981; } /* Mint Green / bg-emerald-500 */
+		.filter-btn.active.filter-product  { background: #10b981; border-color: #10b981; } /* Mint Green */
+		.filter-btn.active.filter-hci      { background: #0d9488; border-color: #0d9488; } /* Teal  fallback */
+		.filter-btn.active.filter-life     { background: #10b981; border-color: #10b981; } /* Mint  fallback */
+
+		/* ============================================================
+		 * Bento Grid（盒子网格布局）与自适应排序（Adaptive Sorting）
+		 * 逻辑：Grid 子项通过 order 属性控制视觉层级（Visual Hierarchy）；
+		 * 匹配项 order:0 排前，非匹配项 order:1 排后，实现信息架构（Information Architecture）上的「选中置顶」。
+		 * 术语：Flex/Grid Order——在 Flex 或 Grid 布局中，order 数值越小越靠前，用于不改 DOM 顺序即可重排。
+		 * ============================================================ */
+		.bento-grid {
+			display: grid;
+			grid-template-columns: repeat(12, 1fr);
+			grid-auto-rows: 180px;
+			gap: 1.25rem;
+		}
+
+		.card-large  { grid-column: span 12; grid-row: span 2; }
+		.card-medium { grid-column: span 6;  grid-row: span 2; }
+		.card-small  { grid-column: span 4;  grid-row: span 1; }
+
+		@media (max-width: 768px) {
+			.card-large,
+			.card-medium,
+			.card-small {
+				grid-column: span 12;
+				grid-row: span 2;
+			}
+		}
+
+		/* ============================================================
+		 * 卡片重设计：白底、细灰边框、柔和阴影（无 Glassmorphism / 无发光）
+		 * 视觉：bg-white，border border-gray-100，rounded-2xl，shadow-sm，hover:shadow-lg transition-all。
+		 * 逻辑：移除 backdrop-blur 与强对比色，保持单色调（Monochromatic）一致性（Consistency）。
+		 * ============================================================ */
+		/* 卡片默认 order:0，JS 过滤时非匹配项设为 order:1 以排到网格后方 */
+		.project-card {
+			position: relative;
+			order: 0;
+			background: #ffffff;
+			border: 1px solid #f3f4f6; /* border-gray-100 */
+			border-radius: 1rem; /* rounded-2xl */
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+			overflow: hidden;
+			cursor: pointer;
+			/* transition 使 opacity/transform 在过滤与排序时平滑变化；order 变化导致的位移为即时重排 */
+			transition: box-shadow 0.3s ease, opacity 0.4s ease, transform 0.4s ease;
+		}
+
+		.project-card:hover {
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+		}
+
+		/* 被过滤掉（Filtered Out）的卡片：淡出 + 轻微缩小，逻辑不变 */
+		.project-card.filtered-out {
+			opacity: 0.2;
+			transform: scale(0.98);
+			pointer-events: none;
+		}
+
+		/* ============================================================
+		 * 卡片内容区（Card Content）
+		 * ============================================================ */
+		.card-content {
+			position: relative;
+			padding: 1.75rem;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		/* ============================================================
+		 * 标签（Tag）极简药丸形：纯黑字 + 极淡色块背景（Pastel），无发光
+		 * 视觉：不同领域使用极淡的 Pastel 背景（如 AI=极淡蓝，UX=极淡紫）。
+		 * 术语：Accent Color（强调色）仅用于过滤按钮激活态；标签用极淡色区分领域。
+		 * ============================================================ */
+		.primary-tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem;
+		}
+
+		.tag {
+			display: inline-block;
+			padding: 0.25rem 0.7rem;
+			border-radius: 9999px;
+			font-size: 0.7rem;
+			font-weight: 600;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			color: #000000;
+		}
+
+		/* 主标签按领域分配极淡背景（Pastel），无边框无发光 */
+		.tag-primary.tag-ai       { background: #dbeafe; } /* 极淡蓝 */
+		.tag-primary.tag-ux       { background: #ede9fe; } /* 极淡紫 */
+		.tag-primary.tag-hardware { background: #f1f5f9; } /* 极淡灰 */
+		.tag-primary.tag-product  { background: #d1fae5; } /* 极淡绿 */
+		.tag-primary.tag-hci      { background: #fef3c7; } /* 极淡琥珀 */
+
+		/* 卡片标题：纯黑 */
+		.card-title {
+			font-size: 1.35rem;
+			font-weight: 700;
+			color: #000000;
+			margin: 0;
+			letter-spacing: -0.02em;
+			line-height: 1.25;
+		}
+
+		/* 卡片描述：深灰（text-gray-800） */
+		.card-description {
+			font-size: 0.9rem;
+			color: #1f2937;
+			line-height: 1.6;
+			margin: 0;
+			flex-grow: 1;
+		}
+
+		/* ============================================================
+		 * 渐进披露（Progressive Disclosure）技术关键词：逻辑不变，视觉简化
+		 * 视觉：默认隐藏，悬停淡入；标签为极淡色块 + 黑/深灰字，无发光。
+		 * ============================================================ */
+		.tech-keywords {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem;
+			opacity: 0;
+			transform: translateY(4px);
+			transition: opacity 0.3s ease 0.05s, transform 0.3s ease 0.05s;
+			pointer-events: none;
+			margin-top: auto;
+		}
+
+		.project-card:hover .tech-keywords {
+			opacity: 1;
+			transform: translateY(0);
+			pointer-events: auto;
+		}
+
+		.tag-tech {
+			font-size: 0.65rem;
+			font-weight: 500;
+			color: #374151;
+			background: #f3f4f6;
+			border: none;
+		}
+
+		/* 技术关键词按卡片主题色使用极淡背景 */
+		.tag-tech-blue   { background: #eff6ff; color: #1e40af; }
+		.tag-tech-purple { background: #f5f3ff; color: #5b21b6; }
+		.tag-tech-green  { background: #ecfdf5; color: #047857; }
+		.tag-tech-orange { background: #fff7ed; color: #c2410c; }
 	</style>
+
+	<!--
+		术语说明（Terminology）：
+		- Flex/Grid Order（弹性与网格顺序）：在 Flex 或 Grid 布局中，子项可通过 order 属性指定整数排序；
+		  数值越小越靠前，不改变 DOM 顺序即可重排视觉顺序。
+		- Dynamic Class Binding（动态类绑定）：根据状态（如当前选中的筛选标签）在运行时为元素添加或移除 class，
+		  从而切换样式（如激活色），无需为每种状态写死样式。
+		- Visual Saliency（视觉显著性）：界面中更重要的内容通过位置（置顶）、对比度（高亮/变暗）等方式
+		  吸引注意，形成清晰的视觉层级（Visual Hierarchy）。
+	-->
+
+	<script>
+		/* ============================================================
+		 * 过滤器（Filter）与自适应排序（Adaptive Sorting）逻辑
+		 * 逻辑：
+		 * 1. 动态类绑定（Dynamic Class Binding）：点击时仅当前按钮保留 .active，激活色由 .filter-{tag} 决定。
+		 * 2. 匹配判定：data-filter 与卡片 data-tags 比对；匹配则移除 filtered-out 并设 order=0，否则添加 filtered-out 并设 order=1。
+		 * 3. Flex/Grid Order：order 数值小的项排在前面，选中项目自动置顶，未选中的排后并变暗，提升视觉显著性（Visual Saliency）。
+		 * ============================================================ */
+		const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+		const cards = document.querySelectorAll<HTMLElement>('.project-card');
+
+		filterBtns.forEach(btn => {
+			btn.addEventListener('click', () => {
+				filterBtns.forEach(b => {
+					b.classList.remove('active');
+					b.setAttribute('aria-pressed', 'false');
+				});
+				btn.classList.add('active');
+				btn.setAttribute('aria-pressed', 'true');
+
+				const filter = btn.dataset.filter ?? 'All';
+
+				cards.forEach(card => {
+					const tags = card.dataset.tags?.split(',') ?? [];
+					const isMatch = filter === 'All' || tags.includes(filter);
+
+					if (isMatch) {
+						card.style.order = '0';
+						card.classList.remove('filtered-out');
+					} else {
+						card.style.order = '1';
+						card.classList.add('filtered-out');
+					}
+				});
+			});
+		});
+	</script>
+
 </Layout>

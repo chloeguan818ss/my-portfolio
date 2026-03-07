@@ -18,8 +18,8 @@ const lastName = "Guan";
 		<div class="hero-row">
 			<h1 class="hero-name">{firstName}</h1>
 
-			<!-- 视觉：头像容器，内有两层：圆形头像（静止）+ 旋转文字环。
-			     逻辑：两层 absolute 叠放，avatar-svg 在下、avatar-spin 在上（z-index:20）。 -->
+			<!-- 视觉：头像容器，内有两层：圆形头像（静止）+ 双弧静态文字。
+			     逻辑：两层 absolute 叠放，avatar-svg 在下、avatar-arc 在上（z-index:20）。 -->
 			<div class="avatar-container">
 				<!-- 视觉：圆形裁剪的头像图片，居中显示。
 				     逻辑：clipPath（裁剪路径）定义可见区域；viewBox 建立 SVG 坐标系 (0,0)-(200,200)。 -->
@@ -35,16 +35,29 @@ const lastName = "Guan";
 						<image href="/my-avatar.PNG" x="50" y="50" width="100" height="100" preserveAspectRatio="xMidYMid meet" clip-path="url(#avatarClip)" />
 					</svg>
 				</div>
-				<!-- 视觉：环绕头像旋转的文字环，悬停时暂停，文字可点击跳转。
-				     逻辑：path 定义圆弧路径；textPath 让文字沿该路径排列；CSS animation 控制旋转。 -->
-				<div class="avatar-spin">
-					<svg viewBox="0 0 200 200" class="circle-svg">
-						<!-- d 属性：从圆心 (100,100) 出发，绘制半径 80 的完整圆弧。 -->
-						<path id="circlePath" d="M 100, 100 m -80, 0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" fill="none" />
-						<text class="circle-text">
-							<!-- textPath：将文字绑定到 #circlePath，沿圆弧排布；每个词是独立的 <a> 链接。 -->
-							<textPath href="#circlePath" startOffset="0%">
-								<a href="/projects">Projects</a> • <a href="/insights">Insights</a> • <a href="/journey">Journey</a> • <a href="/projects">Projects</a> • <a href="/insights">Insights</a> • <a href="/journey">Journey</a> •
+				<!-- 视觉：双弧静态文字——上弧站内导航（可点击），下弧外链；无旋转。 -->
+				<div class="avatar-arc">
+					<svg class="avatar-text-svg" viewBox="0 0 200 200" width="100%" height="100%" aria-hidden="true">
+						<defs>
+							<path id="topArc" d="M 20, 100 A 80, 80 0 0, 1 180, 100" />
+							<path id="bottomArc" d="M 20, 100 A 80, 80 0 0, 0 180, 100" />
+						</defs>
+						<text font-size="13" font-weight="600" letter-spacing="1.2px" text-anchor="middle">
+							<textPath href="#topArc" startOffset="50%">
+								<a href="/projects" class="svg-link">Projects</a>
+								<tspan fill="#d1d5db" font-weight="400"> · </tspan>
+								<a href="/insights" class="svg-link">Insights</a>
+								<tspan fill="#d1d5db" font-weight="400"> · </tspan>
+								<a href="/plog" class="svg-link">Plog</a>
+							</textPath>
+						</text>
+						<text font-size="13" font-weight="500" letter-spacing="1.2px" text-anchor="middle">
+							<textPath href="#bottomArc" startOffset="50%">
+								<a href="https://github.com/chloeguan818ss" target="_blank" rel="noopener noreferrer" class="svg-link-external">GitHub</a>
+								<tspan fill="#d1d5db" font-weight="400"> · </tspan>
+								<a href="https://www.linkedin.com/in/chloe-guan-92289b355/" target="_blank" rel="noopener noreferrer" class="svg-link-external">LinkedIn</a>
+								<tspan fill="#d1d5db" font-weight="400"> · </tspan>
+								<a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="svg-link-external">Resume</a>
 							</textPath>
 						</text>
 					</svg>
@@ -54,10 +67,10 @@ const lastName = "Guan";
 			<h1 class="hero-name">{lastName}</h1>
 		</div>
 
-		<!-- 视觉：打字机效果展示自我介绍，逐字出现。
-		     逻辑：id="typewriter" 供 JS 选择；内容由下方脚本动态写入。 -->
-		<div class="intro">
-			<p id="typewriter" class="intro-text"></p>
+		<!-- 视觉：自我介绍区域，左对齐、静态全文显示。 -->
+		<div id="bio-text" class="bio-text intro">
+			<div class="bio-tagline">Hi, I'm {firstName}.</div>
+			<p class="intro-text bio-long-paragraph">Aspiring Cognitive Science researcher and AI Strategist focused on building human-centered intelligent systems. I explore how AI shifts human cognitive landscapes to identify emerging market opportunities and next-generation pain points, leveraging Machine Learning to enhance user accessibility and streamline digital-physical workflows.</p>
 		</div>
 	</section>
 
@@ -126,98 +139,79 @@ const lastName = "Guan";
 		}
 
 		.avatar-svg,
-		.avatar-spin {
+		.avatar-arc {
 			position: absolute;
 			inset: 0;
 		}
 
 		.avatar-svg svg,
-		.avatar-spin svg {
+		.avatar-arc svg {
 			width: 100%;
 			height: 100%;
 		}
 
-		/* 视觉：圆弧上的文字样式，全大写、字间距加宽。
-		 * fill：SVG 中文字的「颜色」等价属性。 */
-		.circle-text {
-			font-size: 12px;
-			text-transform: uppercase;
-			letter-spacing: 0.2em;
-			fill: #111827;
-		}
-
-		/* 视觉：圆弧内链接的悬停/点击反馈，颜色变灰、透明度微调。
-		 * 逻辑：transition 使变化平滑；:active 对应鼠标按下瞬间。 */
-		.circle-svg a {
-			fill: inherit;
-			color: inherit;
-			text-decoration: none;
-			cursor: pointer;
-			transition: fill 0.15s ease, opacity 0.15s ease;
-		}
-
-		.circle-svg a:hover {
-			fill: #4b5563;
-			opacity: 0.9;
-		}
-
-		.circle-svg a:active {
-			fill: #6b7280;
-			opacity: 1;
-		}
-
-		/* 视觉：光环持续旋转，悬停时暂停便于点击。
-		 * 逻辑：animation 绑定 @keyframes spin；linear 匀速；infinite 无限循环。 */
-		.avatar-spin {
-			animation: spin 20s linear infinite;
+		/* 视觉：双弧静态文字，无旋转；SVG 与容器对齐。 */
+		.avatar-arc {
 			z-index: 20;
 		}
 
-		.avatar-spin:hover {
-			animation-play-state: paused;
+		.avatar-text-svg {
+			position: absolute;
+			inset: 0;
+			overflow: visible;
 		}
 
-		/* 定义旋转动画：从 0deg 到 360deg，形成完整一圈。 */
-		@keyframes spin {
-			from { transform: rotate(0deg); }
-			to { transform: rotate(360deg); }
+		/* SVG 弧上链接：使用 fill 控制颜色，hover 时过渡。 */
+		.svg-link,
+		.svg-link-external {
+			cursor: pointer;
+			transition: fill 0.2s ease, opacity 0.2s ease;
 		}
 
-		/* 视觉：自我介绍段落，居中、最大宽度限制、灰色文字。 */
-		.intro {
+		/* 上弧：站内导航，深色强调 */
+		.svg-link {
+			fill: #111827;
+		}
+
+		.svg-link:hover {
+			fill:rgb(136, 167, 234);
+		}
+
+		/* 下弧：外链，次要强调 */
+		.svg-link-external {
+			fill: #6b7280;
+		}
+
+		.svg-link-external:hover {
+			fill: #111827;
+		}
+
+		/* 视觉：自我介绍区域，左对齐、最大宽度限制、灰色文字；静态全文，无打字效果。 */
+		.intro,
+		.bio-text {
 			margin-top: 3rem;
-			max-width: 32rem;
-			text-align: center;
+			width: 100%;
+			max-width: 650px;
+			text-align: left;
 			padding: 0 1rem;
+			align-self: flex-start;
 		}
 
-		/* 视觉：自我介绍文字大小与行高，灰色以提高可读性。 */
-		.intro-text {
+		.bio-tagline {
+			font-size: 1.5rem;
+			font-weight: 600;
+			color: #111827;
+			margin: 0 0 0.75rem;
+		}
+
+		/* 视觉：自我介绍正文大小与行高，灰色以提高可读性。 */
+		.intro-text,
+		.bio-long-paragraph {
 			font-size: 1.25rem;
 			color: #4b5563;
 			line-height: 1.6;
+			margin: 0;
 		}
 	</style>
 
-	<script>
-		/* 视觉：打字机逐字显示自我介绍。
-		 * 逻辑：递归调用 setTimeout，每次追加一个字符；speed 控制间隔（毫秒）。 */
-		const text = "Aspiring Cognitive Science researcher and AI Strategist focused on building human-centered intelligent systems. I explore how AI shifts human cognitive landscapes to identify emerging market opportunities and next-generation pain points, leveraging Machine Learning to enhance user accessibility and streamline digital-physical workflows.";
-		const speed = 10;
-		let i = 0;
-
-		function typeWriter() {
-			/* 逐字符追加：取 text[i] 写入 DOM，i 递增，递归 scheduling 下一字符。 */
-			if (i < text.length) {
-				const element = document.getElementById("typewriter");
-				if (element) {
-					element.innerHTML += text.charAt(i);
-					i++;
-					setTimeout(typeWriter, speed);
-				}
-			}
-		}
-
-		window.addEventListener("load", typeWriter);
-	</script>
 </Layout>

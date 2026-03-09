@@ -186,15 +186,14 @@ const lastName = "Guan";
 			fill: #111827;
 		}
 
-		/* 视觉：自我介绍区域，左对齐、最大宽度限制、灰色文字；静态全文，无打字效果。 */
+		/* 视觉：自我介绍区域，左对齐、占满可用宽度；静态全文，无打字效果。 */
 		.intro,
 		.bio-text {
 			margin-top: 3rem;
 			width: 100%;
-			max-width: 650px;
 			text-align: left;
 			padding: 0 1rem;
-			align-self: flex-start;
+			align-self: stretch;
 		}
 
 		.bio-tagline {

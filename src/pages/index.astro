@@ -67,8 +67,12 @@ const lastName = "Guan";
 			<h1 class="hero-name">{lastName}</h1>
 		</div>
 
-		<!-- 视觉：自我介绍区域，左对齐、静态全文显示。 -->
-		<div id="bio-text" class="bio-text intro">
+		<!--
+			视觉：Summary 区块（自我介绍），强制居中，避免 Vercel 部署后被全局样式覆盖。
+			Layout Hierarchy（布局层级）：使用 .home-summary 显式居中，!important 确保优先级高于全局/第三方样式。
+			English Terminology: Summary section, centering, specificity override.
+		-->
+		<div id="bio-text" class="bio-text intro home-summary">
 			<div class="bio-tagline">Hi, I'm {firstName}.</div>
 			<p class="intro-text bio-long-paragraph">Aspiring Cognitive Science researcher and AI Strategist focused on building human-centered intelligent systems. I explore how AI shifts human cognitive landscapes to identify emerging market opportunities and next-generation pain points, leveraging Machine Learning to enhance user accessibility and streamline digital-physical workflows.</p>
 		</div>
@@ -186,14 +190,34 @@ const lastName = "Guan";
 			fill: #111827;
 		}
 
-		/* 视觉：自我介绍区域，左对齐、占满可用宽度；静态全文，无打字效果。 */
+		/* 视觉：自我介绍区域，占满可用宽度；静态全文，无打字效果。 */
+		/* English: Intro / Summary section, full width, static content. */
 		.intro,
 		.bio-text {
 			margin-top: 3rem;
 			width: 100%;
-			text-align: left;
 			padding: 0 1rem;
 			align-self: stretch;
+		}
+
+		/*
+		 * 强化布局层级：Summary 区块在任意断点下均居中，覆盖 Vercel/全局/第三方样式。
+		 * Strengthen layout hierarchy: force Summary to center at all breakpoints; !important overrides global/third-party (e.g. Supabase) styles.
+		 * 未在 md: / lg: 下设置 text-left，避免大屏错误左对齐。
+		 * No text-left at md/lg breakpoints — ensures consistent center alignment on large screens.
+		 */
+		.home-summary {
+			text-align: center !important;
+			margin-left: auto !important;
+			margin-right: auto !important;
+		}
+
+		/* 可选：限制 Summary 正文最大宽度，居中时更易读。English: Optional max-width for readability when centered. */
+		.home-summary .intro-text,
+		.home-summary .bio-long-paragraph {
+			max-width: 42rem;
+			margin-left: auto !important;
+			margin-right: auto !important;
 		}
 
 		.bio-tagline {
@@ -203,7 +227,7 @@ const lastName = "Guan";
 			margin: 0 0 0.75rem;
 		}
 
-		/* 视觉：自我介绍正文大小与行高，灰色以提高可读性。 */
+		/* 视觉：自我介绍正文大小与行高，灰色以提高可读性。 English: Body text size, line-height, gray for readability. */
 		.intro-text,
 		.bio-long-paragraph {
 			font-size: 1.25rem;

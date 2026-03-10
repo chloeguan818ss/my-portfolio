@@ -32,8 +32,10 @@ const { title = 'Chloe Guan' } = Astro.props;
 			</nav>
 		</header>
 
-		<!-- 视觉：主内容区域，居中且最大宽度 1200px。
-		     逻辑：slot 是 Astro 的插槽，子页面的内容会在此处渲染。 -->
+		<!--
+			视觉：主内容区域，居中且最大宽度 1200px；不设置 text-align，由各子页面自行控制（避免覆盖首页 Summary 居中）。
+			English: Main content area; no text-align here so child pages (e.g. index Summary) control alignment.
+		-->
 		<main class="site-main">
 			<slot />
 		</main>
@@ -111,8 +113,8 @@ const { title = 'Chloe Guan' } = Astro.props;
 		color: #111827;
 	}
 
-	/* 视觉：主内容区最大宽度 1200px、居中，两侧留白。
-	 * 逻辑：margin: 0 auto 在块级元素上实现水平居中。 */
+	/* 视觉：主内容区最大宽度 1200px、居中，两侧留白；不设置 text-align，避免与首页 Summary 等子页面布局冲突。
+	 * English: No text-align on .site-main to avoid overriding index Summary centering or other page-specific layout. */
 	.site-main {
 		flex: 1;
 		width: 100%;

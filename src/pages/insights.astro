@@ -20,42 +20,94 @@ const insightsData: InsightItem[] = [
 	{
 		id: "insight-1",
 		title: "What happened to cognitive science?",
-		comment: "界面中的选项过多会增加决策负担，应遵循渐进披露（Progressive Disclosure）原则，按需展示次要信息。",
+		comment: "Cognitive Science has not much inprovement in the field, instaed, its goes more towards cognitive psychology field",
 		articleLink: "https://www.nature.com/articles/s41562-019-0626-2",
 		articleTitle: "What happened to cognitive science?",
 		tags: ["Human behaviour", "Cognition"],
 	},
 	{
 		id: "insight-2",
-		title: "具身交互与物理隐喻",
-		comment: "物理世界的隐喻（如拖拽、滑动）能降低学习成本，但需注意可发现性（Discoverability）。",
-		articleLink: "https://example.com/article-2",
-		articleTitle: "Embodied Interaction",
-		tags: ["HCI", "Embodiment", "Metaphor"],
+		title: "Working Memory vs. Long-Term Memory",
+		comment:
+			"Working memory is characterized as a limited, fragile, and currently active state of thought[cite: 4, 13]. In contrast, long-term memory is an enormous and stable repository of knowledge[cite: 4, 15]. The serial position curve demonstrates these differences through the primacy effect, linked to LTM transfer via rehearsal [cite: 81, 82], and the recency effect, which stems from items remaining in working memory[cite: 63, 64].",
+		articleLink: "Local PDF: Week 6 Reading Chapter 6",
+		articleTitle: "The Acquisition of Memories and the Working-Memory System",
+		tags: ["Working Memory", "LTM", "Serial Position Effect", "Chunking"],
 	},
 	{
 		id: "insight-3",
-		title: "AI 与决策支持",
-		comment: "AI 作为决策支持时应保持可解释性（Explainability），避免黑箱带来的信任问题。",
-		articleLink: "https://example.com/article-3",
-		articleTitle: "AI for Decision Support",
-		tags: ["AI", "UX", "Trust"],
+		title: "Retrieval Paths and the Nature of Recognition",
+		comment:
+			"Memory retrieval is facilitated by spreading activation across a network of interconnected nodes[cite: 270, 319]. Semantic priming occurs when the activation of one node (e.g., 'bread') partially activates related nodes (e.g., 'butter'), speeding up subsequent recognition[cite: 271, 283]. Recognition can be based on source memory, which requires specific hippocampal activity [cite: 376, 384], or a general sense of familiarity linked to the rhinal cortex[cite: 377, 380].",
+		articleLink: "Local PDF: Week 8 Reading Chapter 7",
+		articleTitle: "Interconnections between Acquisition and Retrieval",
+		tags: ["Spreading Activation", "Semantic Priming", "Recognition", "Source Memory"],
 	},
 	{
 		id: "insight-4",
-		title: "情境感知系统",
-		comment: "系统若能感知用户当前情境（位置、时间、任务），可提供更贴合的推荐与提示。",
-		articleLink: "https://example.com/article-4",
-		articleTitle: "Context-Aware Systems",
-		tags: ["HCI", "Context", "Personalization"],
+		title: "Memory Errors and Intrusion Effects",
+		comment:
+			"Memory is stored in a vast, interconnected network where boundaries between episodes are not always distinct[cite: 480, 482]. This density of connections can lead to transplant errors, where elements from one context are misremembered as belonging to another[cite: 498]. Intrusion errors occur when prior expectations or general knowledge (schemas) override the reality of a specific experience[cite: 456, 505].",
+		articleLink: "Local PDF: Week 9 Reading Chapter 8",
+		articleTitle: "Remembering Complex Events",
+		tags: ["Memory Errors", "Intrusion Errors", "False Memories", "Network Model"],
 	},
 	{
 		id: "insight-5",
-		title: "可访问性与包容设计",
-		comment: "可访问性（Accessibility）不是附加功能，应从设计之初就纳入，惠及所有用户。",
-		articleLink: "https://example.com/article-5",
-		articleTitle: "Inclusive Design",
-		tags: ["UX", "Accessibility", "Inclusion"],
+		title: "The Hierarchical Organization of Language",
+		comment:
+			"Language is organized into a hierarchy starting from phonemes (smallest sound units) to morphemes (smallest meaning units), words, phrases, and sentences[cite: 527, 558, 559, 563]. Disorders like aphasia highlight that brain areas for language comprehension and production are distinct[cite: 512, 518]. Despite strict rules of syntax, language remains generative, allowing for an unlimited creation of new forms[cite: 530].",
+		articleLink: "Local PDF: Week 10 Reading Chapter 10",
+		articleTitle: "Language Organization and Aphasia",
+		tags: ["Linguistics", "Morphemes", "Phonemes", "Aphasia", "Generativity"],
+	},
+	{
+		id: "insight-6",
+		title: "The Transformer Revolution",
+		comment:
+			"This foundational paper introduced the Transformer architecture, which eschews recurrence and convolutions in favor of self-attention mechanisms. By utilizing multi-head attention to draw global dependencies, the model enables significantly higher parallelization and reduced training times. The core innovation is the Scaled Dot-Product Attention formula: $$Attention(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$. This architecture serves as the backbone for nearly all modern large language models, including GPT and BERT.",
+		articleLink:
+			"https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+		articleTitle: "Attention Is All You Need",
+		tags: ["Transformer", "Self-Attention", "Deep Learning", "Parallelization"],
+	},
+	{
+		id: "insight-7",
+		title: "Strategic Influence in Social Deduction Games",
+		comment:
+			"This paper analyzes how LLM agents can be trained for persuasive communication in games like Werewolf (Mafia). It treats dialogue as a Stackelberg competition where players strategically influence others' beliefs, a key concept for your interests in Distributed Cognition.",
+		articleLink:
+			"https://www.researchgate.net/publication/396458910_Leading_the_Follower_Learning_Persuasive_Agents_in_Social_Deduction_Games",
+		articleTitle: "Leading the Follower: Learning Persuasive Agents in Social Deduction Games",
+		tags: ["Distributed Cognition", "LLM Agents", "Game Theory", "Social Deduction"],
+	},
+	{
+		id: "insight-8",
+		title: "The Extended Mind Thesis",
+		comment:
+			"The foundational argument that cognition is not limited to the biological brain but is 'coupled' with external tools and environmental artifacts. You've discussed this in the context of how the internet and personal knowledge management tools act as cognitive scaffolds.",
+		articleLink: "https://direct.mit.edu/books/edited-volume/2362/The-Extended-Mind",
+		articleTitle: "The Extended Mind",
+		tags: ["Philosophy of Mind", "Extended Mind", "Andy Clark", "Scaffolding"],
+	},
+	{
+		id: "insight-9",
+		title: "Distributed Cognition and Cultural Practices",
+		comment:
+			"Hutchins argues that human intelligence emerges from distributed systems that transcend individual boundaries. You specifically examined his reinterpretation of primate tasks to show how cultural practices orchestrate cognitive outcomes.",
+		articleLink:
+			"https://classes.matthewjbrown.net/teaching-files/cognitive-ethnography/hutchins-emergence-human.pdf",
+		articleTitle: "The role of cultural practices in the emergence of modern human intelligence",
+		tags: ["Distributed Cognition", "Cognitive Ethnography", "Edwin Hutchins", "Evolution"],
+	},
+	{
+		id: "insight-10",
+		title: "Sociocultural Theory and the ZPD",
+		comment:
+			"Vygotsky's framework focusing on how social interaction and 'More Knowledgeable Others' (MKOs) drive development. You've looked into how the Zone of Proximal Development applies to human learning and AI-assisted education.",
+		articleLink: "https://www.simplypsychology.org/vygotsky.html",
+		articleTitle: "Vygotsky's Sociocultural Theory of Cognitive Development",
+		tags: ["Developmental Psychology", "ZPD", "Social Learning", "Vygotsky"],
 	},
 ];
 
@@ -103,7 +155,7 @@ const questionsData: QuestionItem[] = [
 	<div class="insights-page">
 		<header class="insights-header">
 			<h1 class="insights-title">Insights</h1>
-			<p class="insights-subtitle">认知地图（Cognitive Map）——按标签关联的思想节点，点击节点查看详情。</p>
+			<p class="insights-subtitle">Cognitive Map – Click on a node to view details and my comments!</p>
 		</header>
 
 		<!-- 力导向图（Force-Directed Graph）容器：占满剩余空间，支持缩放与拖拽 -->

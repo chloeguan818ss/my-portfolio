@@ -23,25 +23,25 @@ const insightsData: InsightItem[] = [
 		comment: "Cognitive Science has not much inprovement in the field, instaed, its goes more towards cognitive psychology field",
 		articleLink: "https://www.nature.com/articles/s41562-019-0626-2",
 		articleTitle: "What happened to cognitive science?",
-		tags: ["Human behaviour", "Cognition"],
+		tags: ["Human behaviour", "Cognitive Science"],
 	},
 	{
 		id: "insight-2",
 		title: "Working Memory vs. Long-Term Memory",
 		comment:
-			"Working memory is characterized as a limited, fragile, and currently active state of thought[cite: 4, 13]. In contrast, long-term memory is an enormous and stable repository of knowledge[cite: 4, 15]. The serial position curve demonstrates these differences through the primacy effect, linked to LTM transfer via rehearsal [cite: 81, 82], and the recency effect, which stems from items remaining in working memory[cite: 63, 64].",
+			"Working memory is characterized as a limited, fragile, and currently active state of thought. In contrast, long-term memory is an enormous and stable repository of knowledge. The serial position curve demonstrates these differences through the primacy effect, linked to LTM transfer via rehearsal, and the recency effect, which stems from items remaining in working memory.",
 		articleLink: "Local PDF: Week 6 Reading Chapter 6",
 		articleTitle: "The Acquisition of Memories and the Working-Memory System",
-		tags: ["Working Memory", "LTM", "Serial Position Effect", "Chunking"],
+		tags: ["Cognitive Science", "LTM", "Serial Position Effect", "Chunking"],
 	},
 	{
 		id: "insight-3",
 		title: "Retrieval Paths and the Nature of Recognition",
 		comment:
-			"Memory retrieval is facilitated by spreading activation across a network of interconnected nodes[cite: 270, 319]. Semantic priming occurs when the activation of one node (e.g., 'bread') partially activates related nodes (e.g., 'butter'), speeding up subsequent recognition[cite: 271, 283]. Recognition can be based on source memory, which requires specific hippocampal activity [cite: 376, 384], or a general sense of familiarity linked to the rhinal cortex[cite: 377, 380].",
+			"Memory retrieval is facilitated by spreading activation across a network of interconnected nodes. Semantic priming occurs when the activation of one node partially activates related nodes, speeding up subsequent recognition. Recognition can be based on source memory, which requires specific hippocampal activity, or a general sense of familiarity linked to the rhinal cortex.",
 		articleLink: "Local PDF: Week 8 Reading Chapter 7",
 		articleTitle: "Interconnections between Acquisition and Retrieval",
-		tags: ["Spreading Activation", "Semantic Priming", "Recognition", "Source Memory"],
+		tags: ["Cognitive Science", "Semantic Priming", "Recognition", "Source Memory"],
 	},
 	{
 		id: "insight-4",
@@ -50,7 +50,7 @@ const insightsData: InsightItem[] = [
 			"Memory is stored in a vast, interconnected network where boundaries between episodes are not always distinct[cite: 480, 482]. This density of connections can lead to transplant errors, where elements from one context are misremembered as belonging to another[cite: 498]. Intrusion errors occur when prior expectations or general knowledge (schemas) override the reality of a specific experience[cite: 456, 505].",
 		articleLink: "Local PDF: Week 9 Reading Chapter 8",
 		articleTitle: "Remembering Complex Events",
-		tags: ["Memory Errors", "Intrusion Errors", "False Memories", "Network Model"],
+		tags: ["Memory Errors", "Cognitive Science", "False Memories", "Network Model"],
 	},
 	{
 		id: "insight-5",
@@ -107,7 +107,7 @@ const insightsData: InsightItem[] = [
 			"Vygotsky's framework focusing on how social interaction and 'More Knowledgeable Others' (MKOs) drive development. You've looked into how the Zone of Proximal Development applies to human learning and AI-assisted education.",
 		articleLink: "https://www.simplypsychology.org/vygotsky.html",
 		articleTitle: "Vygotsky's Sociocultural Theory of Cognitive Development",
-		tags: ["Developmental Psychology", "ZPD", "Social Learning", "Vygotsky"],
+		tags: ["Developmental Psychology", "ZPD", "Social Learning", "Evolution"],
 	},
 ];
 
@@ -125,22 +125,22 @@ interface QuestionItem {
 const questionsData: QuestionItem[] = [
 	{
 		id: "q1",
-		text: "当 AI 成为日常决策的「副驾驶」时，人类如何保持认知主体性（Agency）而不沦为确认按钮的点击者？",
+		text: "Not all friction is a flaw. How do we clear the barriers to learning while preserving the struggle that's essential for our thought?",
 		answers: ["可以约定：AI 只给选项与依据，最终决策必须由人做出并记录理由。", "我认为关键在「可解释性」——知道 AI 为何这样建议，才能判断是否采纳。"],
 	},
 	{
 		id: "q2",
-		text: "认知景观（Cognitive Landscape）被算法不断重塑时，我们如何区分「自己真正想要的」与「被推荐系统养成的偏好」？",
+		text: "As the cognitive landscape is constantly reshaped by algorithms, how do we distinguish between "what we truly want" and "the preferences cultivated by the recommendation system"?",
 		answers: ["定期做「信息斋戒」：一段时间不用推荐流，观察自己会主动找什么。", "可以保留一块「非算法」的信息入口，比如固定订阅的 newsletter、朋友推荐。"],
 	},
 	{
 		id: "q3",
-		text: "技术与社会摩擦：当自动化（Automation）取代大量中间环节，我们失去的除了岗位，还有哪些「隐性知识」与接触点？",
+		text: "As automation replaces a large number of intermediate steps, what touchpoints do we lose besides jobs?",
 		answers: ["隐性知识往往在「做」的过程中传递，自动化若完全跳过人工环节，这些经验就难以传承。", "接触点减少也会影响信任建立——以前通过人工客服、线下窗口建立的信任，需要新的设计来替代。"],
 	},
 	{
 		id: "q4",
-		text: "Human-AI 协作中，信任（Trust）的建立与破裂往往不对称：一次错误就可能崩塌。设计上如何缓冲这种不对称？",
+		text: "How do humans navigate a world where AI is designed to echo our own biases back to us?",
 		answers: ["让 AI 明确标出置信度与不确定性，避免「看起来非常确定」的错觉。", "提供「撤销 / 回退」与「人工复核」的出口，让用户感到始终有兜底。"],
 	},
 ];
